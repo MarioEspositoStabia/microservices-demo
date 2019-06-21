@@ -18,4 +18,8 @@
     <ProjectReference Include="..\Microservices.Demo.IdentityService.Messaging\Microservices.Demo.IdentityService.Messaging.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Handlers\" />
+  </ItemGroup>
+
 </Project>
