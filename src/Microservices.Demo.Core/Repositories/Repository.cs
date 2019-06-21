@@ -1,7 +1,9 @@
 ﻿using Microservices.Demo.Core.Database.Relational;
 using Microservices.Demo.Core.Entity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -23,44 +25,70 @@ namespace Microservices.Demo.Core.Repositories
             return entityEntry.Entity;
         }
 
-        public async Task AddRangeAsync(IQueryable<TEntity> entities)
+        public async Task<IEnumerable<TEntity>> AddRangeAsync(IQueryable<TEntity> entities)
         {
-            await this._context.Set<TEntity>().AddRangeAsync(entities);
+            TEntity[] enumerable = entities as TEntity[] ?? entities.ToArray();
+            TEntity[] entityList = new TEntity[enumerable.Length];
+
+            for (int i = 0; i < enumerable.Length; i++)
+            {
+                TEntity entity = enumerable[i];
+                entityList[i] = await this.AddAsync(entity);
+            }
+
+            return entityList;
         }
 
-        public Task<TEntity> DeleteAsync(TEntity entity)
+        public TEntity Delete(TEntity entity)
         {
-            throw new NotImplementedException();
+            EntityEntry<TEntity> entityEntry = this._context.Set<TEntity>().Remove(entity);
+            return entityEntry.Entity;
         }
 
-        public Task<IQueryable<TEntity>> DeleteRangeAsync(IQueryable<TEntity> entities)
+        public IEnumerable<TEntity> DeleteRange(IQueryable<TEntity> entities)
         {
-            throw new NotImplementedException();
+            return DoForEach(entities, this.Delete);
         }
 
-        public Task<IQueryable<TEntity>> FindByAsync(Expression<Func<TEntity, bool>> predicate)
+        public async Task<List<TEntity>> FindByAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            throw new NotImplementedException();
+            return await this._context.Set<TEntity>().Where(predicate).ToListAsync();
         }
 
-        public Task<IQueryable<TEntity>> GetAllAsync()
+        public async Task<List<TEntity>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await this._context.Set<TEntity>().ToListAsync();
         }
 
-        public Task<TEntity> GetAsync(Guid id)
+        public async Task<TEntity> GetAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await this._context.Set<TEntity>().FirstOrDefaultAsync(entity => entity.Id.Equals(id));
         }
 
-        public Task<TEntity> UpdateAsync(TEntity entity)
+        public TEntity Update(TEntity entity)
         {
-            throw new NotImplementedException();
+            this._context.Entry(entity).State = EntityState.Modified;
+            return entity;
         }
 
-        public Task<IQueryable<TEntity>> UpdateRangeAsync(IQueryable<TEntity> entities)
+        public IEnumerable<TEntity> UpdateRange(IQueryable<TEntity> entities)
         {
-            throw new NotImplementedException();
+            return DoForEach(entities, this.Update);
+        }
+
+        private TEntity[] DoForEach(IQueryable<TEntity> entities, Func<TEntity, TEntity> function)
+        {
+            TEntity[] enumerable = entities as TEntity[] ?? entities.ToArray();
+            TEntity[] entityList = new TEntity[enumerable.Length];
+
+            for (int i = 0; i < enumerable.Length; i++)
+            {
+                TEntity entity = enumerable[i];
+
+                entityList[i] = function.Invoke(entity);
+            }
+
+            return entityList;
         }
     }
 }
