@@ -138,5 +138,10 @@ namespace Microservices.Demo.Core.Repositories
         {
             return await this._context.Set<TEntity>().Where(entity => entity.Status == entityStatus).AnyAsync(predicate);
         }
+
+        public async Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, EntityStatus entityStatus = EntityStatus.Available)
+        {
+            return await this._context.Set<TEntity>().Where(entity => entity.Status == entityStatus).SingleOrDefaultAsync(predicate);
+        }
     }
 }

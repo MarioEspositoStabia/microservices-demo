@@ -16,10 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Microservices.Demo.Core\Microservices.Demo.Core.csproj" />
     <ProjectReference Include="..\Microservices.Demo.IdentityService.Messaging\Microservices.Demo.IdentityService.Messaging.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Handlers\" />
+    <ProjectReference Include="..\Microservices.Demo.ProductService.Messaging\Microservices.Demo.ProductService.Messaging.csproj" />
   </ItemGroup>
 
 </Project>

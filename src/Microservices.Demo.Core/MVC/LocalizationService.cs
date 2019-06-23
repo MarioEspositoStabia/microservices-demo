@@ -40,5 +40,13 @@ namespace Microservices.Demo.Core.MVC
 
             return new StatusCode { Type = statusType, Code = responseCodeValue, Message = this._localizer[responseCodeValue] };
         }
+
+        public ApiError GetLocalizedApiError(ResponseCode responseCode)
+        {
+            StatusCode statusCode = this.GetLocalizedStatusCode(responseCode);
+            ApiError apiError = new ApiError(statusCode);
+
+            return apiError;
+        }
     }
 }

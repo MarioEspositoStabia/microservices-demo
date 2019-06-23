@@ -29,5 +29,7 @@ namespace Microservices.Demo.Core.Repositories
         IEnumerable<TEntity> UpdateRange(IQueryable<TEntity> entities);
 
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, EntityStatus entityStatus = EntityStatus.Available);
+
+        Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, EntityStatus entityStatus = EntityStatus.Available);
     }
 }

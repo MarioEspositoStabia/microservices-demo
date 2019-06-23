@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Micorservices.Demo.ApiGateway.Handlers;
+using Microservices.Demo.Core.Events;
+using Microservices.Demo.Core.MVC.Authentication;
+using Microservices.Demo.Core.MVC.Utils;
 using Microservices.Demo.Core.RabbitMq;
-using Microservices.Demo.IdentityService.Messaging.Commands;
 using Microservices.Demo.IdentityService.Messaging.Events;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Micorservices.Demo.ApiGateway
 {
@@ -31,6 +27,16 @@ namespace Micorservices.Demo.ApiGateway
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddRabbitMq(Configuration);
+            services.AddEmailHandler(Configuration);
+            services.AddJwt(Configuration);
+            services.AddSignalR();
+
+            services.AddScoped<IEventHandler<UserCreatedEvent>, UserCreatedEventHandler>();
+            services.AddScoped<IEventHandler<CreateUserRejectedEvent>, CreateUserRejectedEventHandler>();
+            services.AddScoped<IEventHandler<GetTokenEvent>, GetTokenEventHandler>();
+            services.AddScoped<IEventHandler<GetTokenRejectedEvent>, GetTokenRejectedEventHandler>();
+            services.AddScoped<IEventHandler<RefreshTokenEvent>, RefreshTokenEventHandler>();
+            services.AddScoped<IEventHandler<RefreshTokenRejectedEvent>, RefreshTokenRejectedEventHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,11 +52,21 @@ namespace Micorservices.Demo.ApiGateway
                 app.UseHsts();
             }
 
+            app.UseAuthentication();
             app.UseHttpsRedirection();
             app.UseMvc();
 
-            app.SubscribeToEvent<UserCreatedEvent>();
-            app.SubscribeToEvent<CreateUserRejectedEvent>();
+            app.UseSignalR(configuration =>
+            {
+                configuration.MapHub<ApiGatewayHub>("/apiGateWay");
+            });
+
+            app.RabbitMqSubscribeToEvent<UserCreatedEvent>();
+            app.RabbitMqSubscribeToEvent<CreateUserRejectedEvent>();
+            app.RabbitMqSubscribeToEvent<GetTokenEvent>();
+            app.RabbitMqSubscribeToEvent<GetTokenRejectedEvent>();
+            app.RabbitMqSubscribeToEvent<RefreshTokenEvent>();
+            app.RabbitMqSubscribeToEvent<RefreshTokenRejectedEvent>();
         }
     }
 }

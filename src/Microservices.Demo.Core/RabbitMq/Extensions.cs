@@ -22,7 +22,7 @@ namespace Microservices.Demo.Core.RabbitMq
             services.AddSingleton<IBusClient>(serviceProvider => busClient);
         }
 
-        public static void SubscribeToCommand<TCommand>(this IApplicationBuilder applicationBuilder) where TCommand : ICommand
+        public static void RabbitMqSubscribeToCommand<TCommand>(this IApplicationBuilder applicationBuilder) where TCommand : ICommand
         {
             string queueName = GetTypeName<TCommand>();
 
@@ -37,7 +37,7 @@ namespace Microservices.Demo.Core.RabbitMq
 
         }
 
-        public static void SubscribeToEvent<TEvent>(this IApplicationBuilder applicationBuilder) where TEvent : IEvent
+        public static void RabbitMqSubscribeToEvent<TEvent>(this IApplicationBuilder applicationBuilder) where TEvent : IEvent
         {
             string queueName = GetTypeName<TEvent>();
 

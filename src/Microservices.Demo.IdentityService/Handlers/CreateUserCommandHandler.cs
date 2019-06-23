@@ -58,11 +58,9 @@ namespace Microservices.Demo.IdentityService.Handlers
                     return;
                 }
 
-                string verificationCode = await this._userService.AddUserAsync(command.UserName, command.Password, command.Email);
+                string verificationCode = await this._userService.AddUserAsync(command.UserName, command.Password, command.Email, Guid.Empty);
 
-                await this._userService.SaveChangesAsync(Guid.Empty);
-
-                await _busClient.PublishAsync(new UserCreatedEvent(command.Email, verificationCode)
+                await _busClient.PublishAsync(new UserCreatedEvent(command.UserName, command.Email, verificationCode)
                 {
                     ConnectionId = command.ConnectionId
                 });

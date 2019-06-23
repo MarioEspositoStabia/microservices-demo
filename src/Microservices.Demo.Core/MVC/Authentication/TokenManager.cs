@@ -7,13 +7,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Microservices.Demo.Core.MVC.Authentication
 {
     public static class TokenManager
     {
-        public static object GenerateToken(IConnectionMultiplexer connectionMultiplexer, string cacheKey, IEnumerable<Claim> claims, string key, string issuer = null, string audience = null, double? expires = null)
+        public static RefreshTokenModel GenerateToken(IConnectionMultiplexer connectionMultiplexer, string cacheKey, IEnumerable<Claim> claims, string key, string issuer = null, string audience = null, double? expires = null)
         {
             RSAParameters privateKeyParameters = DigitalSignatureManager.GetKey(key);
             RsaSecurityKey privateKey = new RsaSecurityKey(privateKeyParameters);
@@ -34,11 +33,11 @@ namespace Microservices.Demo.Core.MVC.Authentication
 
             database.StringSet(cacheKey, refreshToken);
 
-            return new
+            return new RefreshTokenModel
             {
-                access_token = token,
-                expiration = securityToken.ValidTo,
-                refresh_token = refreshToken
+                Token = token,
+                Expiration = securityToken.ValidTo,
+                RefreshToken = refreshToken
             };
         }
 
@@ -79,7 +78,7 @@ namespace Microservices.Demo.Core.MVC.Authentication
                 ClockSkew = TimeSpan.Zero
             };
         }
-        public static object RefreshToken(IConnectionMultiplexer connectionMultiplexer, string token, string refreshToken, string privateKey, string publicKey, string issuer = null, string audience = null, double? expires = null)
+        public static RefreshTokenModel RefreshToken(IConnectionMultiplexer connectionMultiplexer, string token, string refreshToken, string privateKey, string publicKey, string issuer = null, string audience = null, double? expires = null)
         {
             ClaimsPrincipal principal = GetPrincipalFromExpiredToken(token, publicKey, issuer, audience);
 
@@ -116,11 +115,11 @@ namespace Microservices.Demo.Core.MVC.Authentication
 
             database.StringSet(cacheKey, newRefreshToken);
 
-            return new
+            return new RefreshTokenModel
             {
-                access_token = newToken,
-                expiration = newSecurityToken.ValidTo,
-                refresh_token = newRefreshToken
+                Token = newToken,
+                Expiration = newSecurityToken.ValidTo,
+                RefreshToken = newRefreshToken
             };
         }
 

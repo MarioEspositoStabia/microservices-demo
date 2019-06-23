@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
@@ -18,18 +18,22 @@ namespace Microservices.Demo.Core.MVC
             return requestCultureFeature.RequestCulture.Culture;
         }
 
-        public static void AddLocalizationService<T>(this IServiceCollection services, List<CultureInfo> supportedCultures) where T : class
+        public static void AddLocalizationService<T>(this IServiceCollection services, IConfiguration configuration) where T : class
         {
-            if (!supportedCultures.Any(culture => culture.Name == "en-US"))
+            LocalizationOptions localizationOptions = new LocalizationOptions();
+            IConfigurationSection configurationSection = configuration.GetSection("localization");
+            configurationSection.Bind(localizationOptions);
+
+            if (!localizationOptions.SupportedCultures.Any(culture => culture.Name == "en-US"))
             {
-                supportedCultures.Add(new CultureInfo("en-US"));
+                localizationOptions.SupportedCultures.Add(new CultureInfo("en-US"));
             }
 
             services.Configure<RequestLocalizationOptions>(options =>
             {
                 options.DefaultRequestCulture = new RequestCulture(culture: "en-US", uiCulture: "en-US");
-                options.SupportedCultures = supportedCultures;
-                options.SupportedUICultures = supportedCultures;
+                options.SupportedCultures = localizationOptions.SupportedCultures;
+                options.SupportedUICultures = localizationOptions.SupportedCultures;
                 options.RequestCultureProviders.Insert(0, new AcceptLanguageHeaderRequestCultureProvider());
             });
 

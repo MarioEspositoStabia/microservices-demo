@@ -28,7 +28,7 @@ namespace Microservices.Demo.IdentityService.Services
             return await _userRepository.AnyAsync(user => user.Email.ToUpperInvariant() == email.ToUpperInvariant());
         }
 
-        public async Task<string> AddUserAsync(string userName, string password, string email)
+        public async Task<string> AddUserAsync(string userName, string password, string email, Guid userId)
         {
             User user = new User(userName, password, email)
             {
@@ -38,12 +38,28 @@ namespace Microservices.Demo.IdentityService.Services
 
             user = await this._userRepository.AddAsync(user);
 
+            await this._dbContext.SaveChangesAsync(userId);
+
             return user.VerificationCode;
         }
 
-        public async Task<int> SaveChangesAsync(Guid userId)
+        public async Task<User> GetByUserNameAsync(string userName)
         {
-            return await this._dbContext.SaveChangesAsync(userId);
+            return await this._userRepository.SingleOrDefaultAsync(user => user.UserName == userName);
+        }
+
+        public async Task<User> GetByEmailAsync(string email)
+        {
+            return await this._userRepository.SingleOrDefaultAsync(user => user.Email == email);
+        }
+
+        public async Task<User> UpdateAsync(User user, Guid userId)
+        {
+            user = this._userRepository.Update(user);
+
+            await this._dbContext.SaveChangesAsync(userId);
+
+            return user;
         }
     }
 }

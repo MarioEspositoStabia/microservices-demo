@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Microservices.Demo.Core.MVC
 {
@@ -6,6 +7,9 @@ namespace Microservices.Demo.Core.MVC
     {
         [Required]
         public string Token { get; set; }
+
+        [Required]
+        public DateTime Expiration { get; set; }
 
         [Required]
         public string RefreshToken { get; set; }
