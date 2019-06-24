@@ -2,6 +2,6 @@
 {
     public class RedisOptions
     {
-        public string Configuration { get; }
+        public string Configuration { get; set; }
     }
 }

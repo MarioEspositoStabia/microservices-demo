@@ -1,5 +1,8 @@
 ﻿using Micorservices.Demo.ApiGateway.Handlers;
+using Micorservices.Demo.ApiGateway.Resources;
+using Microservices.Demo.Core.Elasticsearch;
 using Microservices.Demo.Core.Events;
+using Microservices.Demo.Core.MVC;
 using Microservices.Demo.Core.MVC.Authentication;
 using Microservices.Demo.Core.MVC.Utils;
 using Microservices.Demo.Core.RabbitMq;
@@ -9,6 +12,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Micorservices.Demo.ApiGateway
 {
@@ -26,9 +31,11 @@ namespace Micorservices.Demo.ApiGateway
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+            services.AddElasticsearch(Configuration);
             services.AddRabbitMq(Configuration);
             services.AddEmailHandler(Configuration);
             services.AddJwt(Configuration);
+            services.AddLocalizationService<SharedResource>(Configuration);
             services.AddSignalR();
 
             services.AddScoped<IEventHandler<UserCreatedEvent>, UserCreatedEventHandler>();
@@ -40,7 +47,7 @@ namespace Micorservices.Demo.ApiGateway
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
@@ -56,10 +63,14 @@ namespace Micorservices.Demo.ApiGateway
             app.UseHttpsRedirection();
             app.UseMvc();
 
+            loggerFactory.AddSerilog();
+
             app.UseSignalR(configuration =>
             {
                 configuration.MapHub<ApiGatewayHub>("/apiGateWay");
             });
+
+            app.UseLocalizationService();
 
             app.RabbitMqSubscribeToEvent<UserCreatedEvent>();
             app.RabbitMqSubscribeToEvent<CreateUserRejectedEvent>();

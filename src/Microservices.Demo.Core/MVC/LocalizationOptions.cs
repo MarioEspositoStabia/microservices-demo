@@ -5,6 +5,6 @@ namespace Microservices.Demo.Core.MVC
 {
     public class LocalizationOptions
     {
-       public List<CultureInfo> SupportedCultures { get; set; }
+       public List<string> SupportedCultures { get; set; }
     }
 }

@@ -22,7 +22,7 @@ namespace Microservices.Demo.Core.Database.Relational
             IConfigurationSection configurationSection = configuration.GetSection("relationalDatabase");
             configurationSection.Bind(dbContextOptions);
 
-            services.AddScoped<IDbContext, TDbContext>(serviceProvider => (TDbContext)Activator.CreateInstance(typeof(TDbContext), dbContextOptions.DatabaseProvider, dbContextOptions.ConnectionString));
+            services.AddScoped<IDbContext, TDbContext>(serviceProvider => (TDbContext)Activator.CreateInstance(typeof(TDbContext), dbContextOptions.DatabaseProvider, dbContextOptions.ConnectionString, dbContextOptions.LogAuditableTables));
 
             services.AddScoped<IDatabaseInitializer, TDatabaseInitializer>();
         }

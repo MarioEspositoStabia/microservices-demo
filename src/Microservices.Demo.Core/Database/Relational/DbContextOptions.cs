@@ -7,5 +7,7 @@ namespace Microservices.Demo.Core.Database.Relational
         public string ConnectionString { get; set; }
 
         public DatabaseProvider DatabaseProvider { get; set; }
+
+        public bool LogAuditableTables { get; set; }
     }
 }

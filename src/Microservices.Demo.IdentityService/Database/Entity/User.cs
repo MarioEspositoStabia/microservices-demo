@@ -7,6 +7,11 @@ namespace Microservices.Demo.IdentityService.Database.Entity
 {
     public class User : AuditableEntity
     {
+        public User()
+        {
+
+        }
+
         public User(
             string userName,
             string password,

@@ -2,6 +2,7 @@
 using Microservices.Demo.IdentityService.Messaging.Commands;
 using Microsoft.AspNetCore.Mvc;
 using RawRabbit;
+using Serilog;
 using System.Threading.Tasks;
 
 namespace Micorservices.Demo.ApiGateway.Controllers
@@ -10,15 +11,20 @@ namespace Micorservices.Demo.ApiGateway.Controllers
     public class UsersController : BaseController
     {
         private readonly IBusClient _busClient;
+        private readonly ILogger _usersLog;
 
         public UsersController(IBusClient busClient, LocalizationService localizationService) : base(localizationService)
         {
             this._busClient = busClient;
+
+            _usersLog = Log.ForContext("SourceContext", typeof(UsersController).FullName);
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] CreateUserCommand createUserCommand)
         {
+            _usersLog.Information("Index is loaded with {@request}", base.Request);
+
             await this._busClient.PublishAsync(createUserCommand);
 
             return Accepted();

@@ -9,7 +9,7 @@ namespace Microservices.Demo.IdentityService.Database.Context
         {
             return new IdentityContext(
                 DatabaseProvider.MicrosoftSQLServer,
-                $@"Server=192.168.99.100,1433\Enterprise;Integrated Security=False;User Id=sa;Password=Ankara.06;MultipleActiveResultSets=True;Initial Catalog=MicroservicesDemo;");
+                $@"Server=127.0.0.1,1433\Enterprise;Integrated Security=False;User Id=sa;Password=Ankara.06;MultipleActiveResultSets=True;Initial Catalog=Microservices.Demo.Identity;");
         }
     }
 }
